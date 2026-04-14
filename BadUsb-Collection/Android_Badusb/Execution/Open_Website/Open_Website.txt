@@ -1,0 +1,16 @@
+REM Author: UNC0V3R3D
+REM Description: Opens a specified website in the default browser on Android.
+REM Version: 1.0
+REM Category: Execution
+REM Target: Android 8+
+REM Requirements: USB debugging enabled, Android device unlocked
+DELAY 2000
+GUI
+DELAY 1000
+STRING chrome
+ENTER
+DELAY 2000
+STRING WEBSITE_URL
+ENTER
+DELAY 1000
+REM End of payload
