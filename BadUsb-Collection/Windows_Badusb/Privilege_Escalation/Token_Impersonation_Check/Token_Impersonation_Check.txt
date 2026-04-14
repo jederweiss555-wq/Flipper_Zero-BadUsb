@@ -1,0 +1,12 @@
+REM Author: UNC0V3R3D
+REM Description: Checks current token integrity level and available privileges. Useful for post-exploitation recon.
+REM Version: 1.0
+REM Category: Privilege_Escalation
+REM Target: Windows 10/11
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden -Command "$id=[System.Security.Principal.WindowsIdentity]::GetCurrent();$p=New-Object System.Security.Principal.WindowsPrincipal($id);$admin=$p.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator);$out='User: '+$id.Name+[char]10+'IsAdmin: '+$admin+[char]10+'Groups: '+(whoami /groups | Select-String 'Mandatory Level')+[char]10;$out | Out-File $env:TEMP\priv_check.txt -Force;Start-Process notepad $env:TEMP\priv_check.txt"
+ENTER
+DELAY 3000
+REM End of payload

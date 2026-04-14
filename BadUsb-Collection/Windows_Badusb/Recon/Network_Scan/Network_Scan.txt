@@ -1,0 +1,12 @@
+REM Author: UNC0V3R3D
+REM Description: Performs local network recon — ARP table, routing table, open ports, network adapters.
+REM Version: 1.0
+REM Category: Recon
+REM Target: Windows 10/11
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden -Command "$out='=== Network Recon ==='+[char]10;$out+='--- ARP Table ---'+[char]10+(arp -a)+[char]10;$out+='--- Route Table ---'+[char]10+(route print)+[char]10;$out+='--- Adapters ---'+[char]10+(Get-NetAdapter | Select Name,Status,MacAddress,LinkSpeed | Format-Table | Out-String)+[char]10;$out+='--- DNS Cache ---'+[char]10+(ipconfig /displaydns)+[char]10;$out | Out-File $env:TEMP\net_recon.txt -Force;Start-Process notepad $env:TEMP\net_recon.txt"
+ENTER
+DELAY 4000
+REM End of payload

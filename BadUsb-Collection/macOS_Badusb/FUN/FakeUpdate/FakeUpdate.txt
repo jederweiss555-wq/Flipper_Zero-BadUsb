@@ -1,0 +1,18 @@
+REM Author: UNC0V3R3D
+REM Description: Displays a fake macOS Software Update progress bar in Terminal.
+REM Version: 1.0
+REM Category: FUN
+REM Target: macOS 10.15+
+REM Requirements: None
+DELAY 1000
+GUI SPACE
+DELAY 700
+STRING terminal
+ENTER
+DELAY 1500
+STRING bash -c "for i in {1..100}; do printf '\r['; printf '#%.0s' $(seq 1 $i); printf ' %.0s' $(seq 1 $((100-i))); printf '] %d%% - Installing macOS Sonoma 14.5 Update...' $i; sleep 0.1; done; echo ''; echo 'Update complete. Please restart your Mac.'"
+ENTER
+DELAY 15000
+STRING exit
+ENTER
+REM End of payload
