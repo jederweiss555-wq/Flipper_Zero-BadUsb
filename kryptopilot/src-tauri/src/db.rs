@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
-use tauri::AppHandle;
+use sqlx::Row;
+use tauri::{AppHandle, Manager};
 use tracing::info;
 
 use crate::commands::{AlertRule, WatchlistEntry};
@@ -31,8 +32,8 @@ async fn run_migrations(pool: &sqlx::SqlitePool) -> Result<()> {
     sqlx::query(
         "CREATE TABLE IF NOT EXISTS watchlist (
             coin_id TEXT PRIMARY KEY,
-            symbol TEXT NOT NULL,
-            name TEXT NOT NULL,
+            symbol  TEXT NOT NULL,
+            name    TEXT NOT NULL,
             added_at TEXT NOT NULL DEFAULT (datetime('now'))
         )",
     )
@@ -41,12 +42,12 @@ async fn run_migrations(pool: &sqlx::SqlitePool) -> Result<()> {
 
     sqlx::query(
         "CREATE TABLE IF NOT EXISTS alert_rules (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            coin_id TEXT NOT NULL,
-            metric TEXT NOT NULL,
-            operator TEXT NOT NULL,
-            value REAL NOT NULL,
-            enabled INTEGER NOT NULL DEFAULT 1,
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            coin_id       TEXT NOT NULL,
+            metric        TEXT NOT NULL,
+            operator      TEXT NOT NULL,
+            value         REAL NOT NULL,
+            enabled       INTEGER NOT NULL DEFAULT 1,
             last_triggered TEXT
         )",
     )
@@ -55,7 +56,7 @@ async fn run_migrations(pool: &sqlx::SqlitePool) -> Result<()> {
 
     sqlx::query(
         "CREATE TABLE IF NOT EXISTS settings (
-            key TEXT PRIMARY KEY,
+            key             TEXT PRIMARY KEY,
             value_encrypted TEXT NOT NULL
         )",
     )
@@ -64,8 +65,8 @@ async fn run_migrations(pool: &sqlx::SqlitePool) -> Result<()> {
 
     sqlx::query(
         "CREATE TABLE IF NOT EXISTS analysis_cache (
-            coin_id TEXT PRIMARY KEY,
-            analysis TEXT NOT NULL,
+            coin_id    TEXT PRIMARY KEY,
+            analysis   TEXT NOT NULL,
             created_at TEXT NOT NULL DEFAULT (datetime('now'))
         )",
     )
@@ -76,13 +77,21 @@ async fn run_migrations(pool: &sqlx::SqlitePool) -> Result<()> {
 }
 
 pub async fn get_watchlist(_app: &AppHandle) -> Result<Vec<WatchlistEntry>> {
-    let rows = sqlx::query_as!(
-        WatchlistEntry,
-        "SELECT coin_id, symbol, name, added_at FROM watchlist ORDER BY added_at DESC"
+    let rows = sqlx::query(
+        "SELECT coin_id, symbol, name, added_at FROM watchlist ORDER BY added_at DESC",
     )
     .fetch_all(pool())
     .await?;
-    Ok(rows)
+
+    Ok(rows
+        .into_iter()
+        .map(|r| WatchlistEntry {
+            coin_id: r.get("coin_id"),
+            symbol: r.get("symbol"),
+            name: r.get("name"),
+            added_at: r.get("added_at"),
+        })
+        .collect())
 }
 
 pub async fn add_to_watchlist(
@@ -112,23 +121,28 @@ pub async fn remove_from_watchlist(_app: &AppHandle, coin_id: &str) -> Result<()
 
 pub async fn save_api_key(_app: &AppHandle, provider: &str, key: &str) -> Result<()> {
     let encrypted = crypto::encrypt(key);
-    sqlx::query("INSERT OR REPLACE INTO settings (key, value_encrypted) VALUES (?, ?)")
-        .bind(format!("api_key_{provider}"))
-        .bind(encrypted)
-        .execute(pool())
-        .await?;
+    sqlx::query(
+        "INSERT OR REPLACE INTO settings (key, value_encrypted) VALUES (?, ?)",
+    )
+    .bind(format!("api_key_{provider}"))
+    .bind(encrypted)
+    .execute(pool())
+    .await?;
     Ok(())
 }
 
 pub async fn get_api_key(_app: &AppHandle, provider: &str) -> Result<Option<String>> {
-    let row: Option<(String,)> = sqlx::query_as(
+    let row = sqlx::query(
         "SELECT value_encrypted FROM settings WHERE key = ?",
     )
     .bind(format!("api_key_{provider}"))
     .fetch_optional(pool())
     .await?;
 
-    Ok(row.map(|(enc,)| crypto::decrypt(&enc)))
+    Ok(row.map(|r| {
+        let enc: String = r.get("value_encrypted");
+        crypto::decrypt(&enc)
+    }))
 }
 
 pub async fn cache_analysis(_app: &AppHandle, coin_id: &str, analysis: &str) -> Result<()> {
@@ -144,8 +158,8 @@ pub async fn cache_analysis(_app: &AppHandle, coin_id: &str, analysis: &str) -> 
 }
 
 pub async fn get_alert_rules(_app: &AppHandle) -> Result<Vec<AlertRule>> {
-    let rows = sqlx::query!(
-        "SELECT id, coin_id, metric, operator, value, enabled FROM alert_rules ORDER BY id"
+    let rows = sqlx::query(
+        "SELECT id, coin_id, metric, operator, value, enabled FROM alert_rules ORDER BY id",
     )
     .fetch_all(pool())
     .await?;
@@ -153,12 +167,15 @@ pub async fn get_alert_rules(_app: &AppHandle) -> Result<Vec<AlertRule>> {
     Ok(rows
         .into_iter()
         .map(|r| AlertRule {
-            id: r.id,
-            coin_id: r.coin_id,
-            metric: r.metric,
-            operator: r.operator,
-            value: r.value,
-            enabled: r.enabled != 0,
+            id: r.get("id"),
+            coin_id: r.get("coin_id"),
+            metric: r.get("metric"),
+            operator: r.get("operator"),
+            value: r.get("value"),
+            enabled: {
+                let v: i64 = r.get("enabled");
+                v != 0
+            },
         })
         .collect())
 }
@@ -200,8 +217,9 @@ pub async fn toggle_alert_rule(_app: &AppHandle, id: i64, enabled: bool) -> Resu
 }
 
 pub async fn get_enabled_rules() -> Result<Vec<AlertRule>> {
-    let rows = sqlx::query!(
-        "SELECT id, coin_id, metric, operator, value, enabled FROM alert_rules WHERE enabled = 1"
+    let rows = sqlx::query(
+        "SELECT id, coin_id, metric, operator, value, enabled
+         FROM alert_rules WHERE enabled = 1",
     )
     .fetch_all(pool())
     .await?;
@@ -209,12 +227,12 @@ pub async fn get_enabled_rules() -> Result<Vec<AlertRule>> {
     Ok(rows
         .into_iter()
         .map(|r| AlertRule {
-            id: r.id,
-            coin_id: r.coin_id,
-            metric: r.metric,
-            operator: r.operator,
-            value: r.value,
-            enabled: r.enabled != 0,
+            id: r.get("id"),
+            coin_id: r.get("coin_id"),
+            metric: r.get("metric"),
+            operator: r.get("operator"),
+            value: r.get("value"),
+            enabled: true,
         })
         .collect())
 }
@@ -228,13 +246,22 @@ pub async fn update_rule_triggered(id: i64) -> Result<()> {
 }
 
 pub async fn rule_triggered_recently(id: i64, hours: i64) -> Result<bool> {
-    let row: Option<(i64,)> = sqlx::query_as(
-        "SELECT COUNT(*) FROM alert_rules WHERE id = ? AND last_triggered > datetime('now', ?)",
+    let row = sqlx::query(
+        "SELECT COUNT(*) as cnt FROM alert_rules
+         WHERE id = ? AND last_triggered > datetime('now', ?)",
     )
     .bind(id)
     .bind(format!("-{hours} hours"))
-    .fetch_optional(pool())
+    .fetch_one(pool())
     .await?;
 
-    Ok(row.map(|(c,)| c > 0).unwrap_or(false))
+    let cnt: i64 = row.get("cnt");
+    Ok(cnt > 0)
+}
+
+pub async fn get_watchlist_ids() -> Result<Vec<String>> {
+    let rows = sqlx::query("SELECT coin_id FROM watchlist")
+        .fetch_all(pool())
+        .await?;
+    Ok(rows.into_iter().map(|r| r.get("coin_id")).collect())
 }

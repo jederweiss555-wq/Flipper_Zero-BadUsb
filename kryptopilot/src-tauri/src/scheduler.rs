@@ -1,14 +1,16 @@
+use chrono::Timelike;
 use tauri::AppHandle;
 use tokio::time::{interval, Duration};
-use tracing::{error, info, warn};
+use tracing::{info, warn};
 
 use crate::alerts;
 
 pub async fn start(app: AppHandle) {
     info!("Scheduler starting");
-    let app_clone = app.clone();
-    tokio::spawn(alert_loop(app_clone));
-    tokio::spawn(briefing_loop(app));
+    let app_alert = app.clone();
+    let app_brief = app;
+    tokio::spawn(alert_loop(app_alert));
+    tokio::spawn(briefing_loop(app_brief));
 }
 
 async fn alert_loop(app: AppHandle) {
@@ -21,9 +23,9 @@ async fn alert_loop(app: AppHandle) {
                 for (rule, value) in triggered {
                     send_notification(
                         &app,
-                        &format!("KryptoPilot Alert: {}", rule.coin_id.to_uppercase()),
+                        &format!("Alert: {}", rule.coin_id.to_uppercase()),
                         &format!(
-                            "{} {} {} {} (aktuell: {:.2})",
+                            "{} {} {} {:.2} (aktuell: {:.2})",
                             rule.coin_id, rule.metric, rule.operator, rule.value, value
                         ),
                     );
@@ -41,16 +43,18 @@ async fn briefing_loop(app: AppHandle) {
     loop {
         ticker.tick().await;
         let now = chrono::Local::now();
+        let hour = now.hour();
+        let minute = now.minute();
 
-        if now.format("%H:%M").to_string() == "08:00" {
-            let today = now.day();
+        if hour == 8 && minute == 0 {
+            let today = now.day0();
             if last_briefing_day != Some(today) {
                 last_briefing_day = Some(today);
                 info!("Sending morning briefing");
                 send_notification(
                     &app,
                     "KryptoPilot Tages-Briefing",
-                    "Dein Krypto-Marktüberblick für heute ist bereit. Öffne die App für die KI-Analyse.",
+                    "Dein Krypto-Marktüberblick ist bereit. Öffne die App.",
                 );
             }
         }
@@ -59,13 +63,7 @@ async fn briefing_loop(app: AppHandle) {
 
 fn send_notification(app: &AppHandle, title: &str, body: &str) {
     use tauri_plugin_notification::NotificationExt;
-    if let Err(e) = app
-        .notification()
-        .builder()
-        .title(title)
-        .body(body)
-        .show()
-    {
+    if let Err(e) = app.notification().builder().title(title).body(body).show() {
         warn!("Notification failed: {e:#}");
     }
 }
