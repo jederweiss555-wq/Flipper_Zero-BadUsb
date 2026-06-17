@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PrivacyGuard</string>
+    <string name="subtitle">Prüft dein Gerät lokal auf Anzeichen von Überwachung oder Kompromittierung. Keine Internetverbindung, keine Berechtigungen nötig.</string>
+    <string name="start_scan">Scan starten</string>
+    <string name="summary_ok">✓ Keine kritischen Auffälligkeiten gefunden.</string>
+    <string name="summary_warn">⚠ %1$d Punkt(e) sollten geprüft werden.</string>
+    <string name="summary_danger">‼ %1$d starke(s) Warnsignal(e), %2$d weitere zu prüfen.</string>
+</resources>
