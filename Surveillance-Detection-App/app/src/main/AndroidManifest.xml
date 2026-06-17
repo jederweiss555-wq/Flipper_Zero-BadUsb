@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+      Deliberately NO permissions are requested. The app only reads public
+      system state and lists already-installed apps. It never accesses the
+      network, so it cannot exfiltrate anything: the analysis stays on device.
+
+      QUERY_ALL_PACKAGES is required on Android 11+ so the scanner can enumerate
+      installed apps to inspect their permissions/install source. This is a
+      sensitive permission on Play; for a security-auditing tool it is the
+      legitimate use case, but if you publish on Play you must justify it.
+    -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <application
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.PrivacyGuard">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
